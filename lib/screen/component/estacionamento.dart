@@ -9,17 +9,20 @@ class Estacionamento extends StatefulWidget {
 }
 
 class _EstacionamentoState extends State<Estacionamento> {
+  final List<Color> cores = [Colors.green, Colors.amber, Colors.red];
+  int index = 1;
+  final List<double> tamanhos = [70, 65];
 
   void printe(){
-    print('clique pelo amor de Deus');
+    setState(() {
+      index = (index + 1) % cores.length;
+    });
   }
-
-
 
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(10.0),
+      padding: const EdgeInsets.all(15.0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -62,7 +65,7 @@ class _EstacionamentoState extends State<Estacionamento> {
               Positioned(
                 bottom: 0,
                 child: Container(
-                  width: 50,
+                  width: 90,
                   height: 5,
                   color: Theme.of(context).colorScheme.onPrimary,
                 ), 
@@ -72,27 +75,17 @@ class _EstacionamentoState extends State<Estacionamento> {
                 right: 0,
                 bottom: 0,
                 child: Container(
-                  width: 50,
-                  height: 5,
-                  color: Theme.of(context).colorScheme.onPrimary,
-                ), 
-              ),
-              //muro central parte de baixo
-              Positioned(
-                right: 150,
-                bottom: 0,
-                child: Container(
-                  width: 80,
+                  width: 100,
                   height: 5,
                   color: Theme.of(context).colorScheme.onPrimary,
                 ), 
               ),
               //mureta central
               Positioned(
-                right: 150,
+                left: 150,
                 bottom: 0,
                 child: Container(
-                  width: 80,
+                  width: 75,
                   height: 5,
                   color: Theme.of(context).colorScheme.onPrimary,
                 ), 
@@ -109,7 +102,7 @@ class _EstacionamentoState extends State<Estacionamento> {
               ),
               Positioned(
                 right: 0,
-                top: 200,
+                top: 220,
                 child: Container(
                   width: 75,
                   height: 5,
@@ -118,7 +111,7 @@ class _EstacionamentoState extends State<Estacionamento> {
               ),
               Positioned(
                 right: 0,
-                top: 250,
+                top: 290,
                 child: Container(
                   width: 75,
                   height: 5,
@@ -137,7 +130,7 @@ class _EstacionamentoState extends State<Estacionamento> {
               ),
               Positioned(
                 left: 0,
-                top: 200,
+                top: 220,
                 child: Container(
                   width: 75,
                   height: 5,
@@ -146,23 +139,55 @@ class _EstacionamentoState extends State<Estacionamento> {
               ),
               Positioned(
                 left: 0,
-                top: 250,
+                top: 290,
                 child: Container(
                   width: 75,
                   height: 5,
                   color: Theme.of(context).colorScheme.onPrimary,
                 ), 
               ),
+              //botao
               Positioned(
-                left: 20,
-                bottom: 20,
+                left: 5,
+                top: 155,
                 child: Container(
-                  color: Colors.amberAccent,
-                  width: 50,
-                  height: 50,
-                  child: TextButton(onPressed: printe, child: Icon(Icons.car_crash))
+                  color: cores[index],
+                  width: tamanhos[0],
+                  height: tamanhos[1],
+                  child: TextButton(onPressed: printe, child: Icon(Icons.car_crash,color: Theme.of(context).colorScheme.onPrimary,))
+                )
+              ),
+              Positioned(
+                left: 5,
+                bottom: 100,
+                child: Container(
+                  color: cores[index],
+                  width: tamanhos[0],
+                  height: tamanhos[1],
+                  child: TextButton(onPressed: printe, child: Icon(Icons.car_crash,color: Theme.of(context).colorScheme.onPrimary,))
+                )
+              ),
+              Positioned(
+                right: 5,
+                top: 155,
+                child: Container(
+                  color: cores[index],
+                  width: tamanhos[0],
+                  height: tamanhos[1],
+                  child: TextButton(onPressed: printe, child: Icon(Icons.car_crash,color: Theme.of(context).colorScheme.onPrimary,))
+                )
+              ),
+              Positioned(
+                right: 5,
+                bottom: 100,
+                child: Container(
+                  color: cores[index],
+                  width: tamanhos[0],
+                  height: tamanhos[1],
+                  child: TextButton(onPressed: printe, child: Icon(Icons.car_crash,color: Theme.of(context).colorScheme.onPrimary,))
                 )
               )
+
             ],
           ),
           

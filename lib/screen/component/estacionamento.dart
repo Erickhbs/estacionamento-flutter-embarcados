@@ -44,7 +44,6 @@ class _EstacionamentoState extends State<Estacionamento> {
         // Altera a cor da vaga para "amber"
         corVaga[index] = 2;
         reservado[index] = true;
-        // Atualiza as vagas livres
         vagasLivres--;
         // Envia a mensagem para o broker MQTT
         _sendMessageToBroker();

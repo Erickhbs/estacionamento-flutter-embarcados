@@ -9,7 +9,8 @@ class MQTTService {
   Function(String message)? onMessageReceived;
 
   Future<void> connect() async {
-    client = MqttServerClient('test.mosquitto.org', 'mqttx_a0d8e8d1');
+    //colocar o broker ou o conectar via tcp/ip
+    client = MqttServerClient('192.168.0.100', 'mqttx_a0d8e8d1');
     client.port = 1883;
     client.keepAlivePeriod = 60;
     client.onConnected = onConnected;

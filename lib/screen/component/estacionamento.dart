@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:parking_lot/screen/component/info.dart';
+import 'package:parking_lot/screen/component/mqttservice.dart';
 
 class Estacionamento extends StatefulWidget {
   const Estacionamento({super.key});
@@ -9,14 +9,47 @@ class Estacionamento extends StatefulWidget {
 }
 
 class _EstacionamentoState extends State<Estacionamento> {
-  final List<Color> cores = [Colors.green, Colors.amber, Colors.red];
-  int index = 1;
+  final MQTTService mqttService = MQTTService();
+  int vagasLivres = 0;
+  List<int> corVaga = []; // Índices das cores para cada vaga
+  List<bool> reservado = []; // Estado de reserva de cada vaga
+
+  @override
+  void initState() {
+    super.initState();
+    mqttService.onMessageReceived = (message) {
+      setState(() {
+        mqttService.processMessage(message);
+        vagasLivres = mqttService.vagasLivres;
+        corVaga = mqttService.corVagaIndices;
+        reservado = mqttService.reservadoStatus;
+      });
+    };
+    mqttService.connect();
+  }
+
+  static Color res = Colors.amber;
+  final List<Color> cores = [Colors.red, Colors.green];
   final List<double> tamanhos = [70, 65];
 
-  void printe(){
-    setState(() {
-      index = (index + 1) % cores.length;
-    });
+  void _sendMessageToBroker() {
+    vagasLivres = corVaga.where((cor) => cor == 0).length;
+    final message = '${vagasLivres}_${corVaga.join('')}_${reservado.map((e) => e ? 1 : 0).join('')}';
+    mqttService.publishMessage('parking/vagas', message);
+  }
+
+  void _onVagaPressed(int index) {
+    if (corVaga[index] == 1 && !reservado[index]) { // Verifica se a vaga está verde e não reservada
+      setState(() {
+        // Altera a cor da vaga para "amber"
+        corVaga[index] = 2;
+        reservado[index] = true;
+        // Atualiza as vagas livres
+        vagasLivres--;
+        // Envia a mensagem para o broker MQTT
+        _sendMessageToBroker();
+      });
+    }
   }
 
   @override
@@ -26,174 +59,93 @@ class _EstacionamentoState extends State<Estacionamento> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          //painel localizações
-          const Info(),
-          //estacionamento
+          // Painel de vagas livres
+          Container(
+            width: 400,
+            height: 200,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+            child: Column(
+              children: [
+                Text("Vagas Livres: $vagasLivres", style: TextStyle(color: Colors.black)),
+              ],
+            ),
+          ),
+          // Estacionamento
           Stack(
             children: [
-              //chao do estacionamento
+              // Chão do estacionamento
               Container(
                 width: 390,
                 height: 390,
                 color: Theme.of(context).colorScheme.onSecondary,
               ),
-              //loja
+              // Loja
               Container(
-                width: 390, 
+                width: 390,
                 height: 100,
                 color: Theme.of(context).colorScheme.onPrimary,
               ),
-              //muro da esquerda
-              Positioned(
-                left: 0,
-                child: Container(
-                  width: 5,
-                  height: 400,
-                  color: Theme.of(context).colorScheme.onPrimary,
-                ),
-              ),
-              //muro da direita
-              Positioned(
-                right: 0,
-                child: Container(
-                  width: 5,
-                  height: 400,
-                  color: Theme.of(context).colorScheme.onPrimary,
-                ), 
-              ),
-              //muro da parte de baixo a esquerda
-              Positioned(
-                bottom: 0,
-                child: Container(
-                  width: 90,
-                  height: 5,
-                  color: Theme.of(context).colorScheme.onPrimary,
-                ), 
-              ),
-              //muro da parte de baixo a direita
-              Positioned(
-                right: 0,
-                bottom: 0,
-                child: Container(
-                  width: 100,
-                  height: 5,
-                  color: Theme.of(context).colorScheme.onPrimary,
-                ), 
-              ),
-              //mureta central
-              Positioned(
-                left: 150,
-                bottom: 0,
-                child: Container(
-                  width: 75,
-                  height: 5,
-                  color: Theme.of(context).colorScheme.onPrimary,
-                ), 
-              ),
-              //vagas direta comecam aqui
-              Positioned(
-                right: 0,
-                top: 150,
-                child: Container(
-                  width: 75,
-                  height: 5,
-                  color: Theme.of(context).colorScheme.onPrimary,
-                ), 
-              ),
-              Positioned(
-                right: 0,
-                top: 220,
-                child: Container(
-                  width: 75,
-                  height: 5,
-                  color: Theme.of(context).colorScheme.onPrimary,
-                ), 
-              ),
-              Positioned(
-                right: 0,
-                top: 290,
-                child: Container(
-                  width: 75,
-                  height: 5,
-                  color: Theme.of(context).colorScheme.onPrimary,
-                ), 
-              ),
-              //vagas esquerda comecam aqui
-              Positioned(
-                left: 0,
-                top: 150,
-                child: Container(
-                  width: 75,
-                  height: 5,
-                  color: Theme.of(context).colorScheme.onPrimary,
-                ), 
-              ),
-              Positioned(
-                left: 0,
-                top: 220,
-                child: Container(
-                  width: 75,
-                  height: 5,
-                  color: Theme.of(context).colorScheme.onPrimary,
-                ), 
-              ),
-              Positioned(
-                left: 0,
-                top: 290,
-                child: Container(
-                  width: 75,
-                  height: 5,
-                  color: Theme.of(context).colorScheme.onPrimary,
-                ), 
-              ),
-              //botao
-              Positioned(
-                left: 5,
-                top: 155,
-                child: Container(
-                  color: cores[index],
-                  width: tamanhos[0],
-                  height: tamanhos[1],
-                  child: TextButton(onPressed: printe, child: Icon(Icons.car_crash,color: Theme.of(context).colorScheme.onPrimary,))
-                )
-              ),
-              Positioned(
-                left: 5,
-                bottom: 100,
-                child: Container(
-                  color: cores[index],
-                  width: tamanhos[0],
-                  height: tamanhos[1],
-                  child: TextButton(onPressed: printe, child: Icon(Icons.car_crash,color: Theme.of(context).colorScheme.onPrimary,))
-                )
-              ),
-              Positioned(
-                right: 5,
-                top: 155,
-                child: Container(
-                  color: cores[index],
-                  width: tamanhos[0],
-                  height: tamanhos[1],
-                  child: TextButton(onPressed: printe, child: Icon(Icons.car_crash,color: Theme.of(context).colorScheme.onPrimary,))
-                )
-              ),
-              Positioned(
-                right: 5,
-                bottom: 100,
-                child: Container(
-                  color: cores[index],
-                  width: tamanhos[0],
-                  height: tamanhos[1],
-                  child: TextButton(onPressed: printe, child: Icon(Icons.car_crash,color: Theme.of(context).colorScheme.onPrimary,))
-                )
-              )
-
+              // Muros e muretas
+              _buildMuro(context, left: 0, height: 400),
+              _buildMuro(context, right: 0, height: 400),
+              _buildMuro(context, bottom: 0, width: 90),
+              _buildMuro(context, right: 0, bottom: 0, width: 100),
+              _buildMuro(context, left: 150, bottom: 0, width: 75),
+              _buildMuro(context, right: 0, top: 150, width: 75),
+              _buildMuro(context, right: 0, top: 220, width: 75),
+              _buildMuro(context, right: 0, top: 290, width: 75),
+              _buildMuro(context, left: 0, top: 150, width: 75),
+              _buildMuro(context, left: 0, top: 220, width: 75),
+              _buildMuro(context, left: 0, top: 290, width: 75),
+              
+              // Botões das vagas
+              _buildVagaButton(context, 0, left: 5, top: 155),
+              _buildVagaButton(context, 1, left: 5, bottom: 100),
+              _buildVagaButton(context, 2, right: 5, top: 155),
+              _buildVagaButton(context, 3, right: 5, bottom: 100),
             ],
           ),
-          
         ],
       ),
-      
+    );
+  }
+
+  Widget _buildMuro(BuildContext context,
+      {double? left, double? right, double? top, double? bottom, double? width, double? height}) {
+    return Positioned(
+      left: left,
+      right: right,
+      top: top,
+      bottom: bottom,
+      child: Container(
+        width: width ?? 5,
+        height: height ?? 5,
+        color: Theme.of(context).colorScheme.onPrimary,
+      ),
+    );
+  }
+
+  Widget _buildVagaButton(BuildContext context, int index,
+      {double? left, double? right, double? top, double? bottom}) {
+    return Positioned(
+      left: left,
+      right: right,
+      top: top,
+      bottom: bottom,
+      child: Container(
+        color: reservado[index] ? res : cores[corVaga[index]],
+        width: tamanhos[0],
+        height: tamanhos[1],
+        child: TextButton(
+          onPressed: corVaga[index] == 1 && !reservado[index]
+              ? () => _onVagaPressed(index)
+              : null, // Desativa o botão se não for verde ou se estiver reservado
+          child: Icon(
+            Icons.car_crash,
+            color: Theme.of(context).colorScheme.onPrimary,
+          ),
+        ),
+      ),
     );
   }
 }

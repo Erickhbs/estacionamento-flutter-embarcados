@@ -1,4 +1,0 @@
-João victor, tudo que for referente ao back-end,
-ponha nesta pasta como pacote-biblioteca. se não souber
-como, no meu github tem um repositorio barber-app que
-você pode tomar como base

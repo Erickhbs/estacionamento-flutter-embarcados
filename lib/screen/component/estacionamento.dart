@@ -11,8 +11,8 @@ class Estacionamento extends StatefulWidget {
 class _EstacionamentoState extends State<Estacionamento> {
   final MQTTService mqttService = MQTTService();
   int vagasLivres = 0;
-  List<int> corVaga = []; // Índices das cores para cada vaga
-  List<bool> reservado = []; // Estado de reserva de cada vaga
+  List<int> corVaga = [1,1,1,1]; // Índices das cores para cada vaga
+  List<bool> reservado = [false,false,false,false]; // Estado de reserva de cada vaga
 
   @override
   void initState() {
@@ -29,7 +29,7 @@ class _EstacionamentoState extends State<Estacionamento> {
   }
 
   static Color res = Colors.amber;
-  final List<Color> cores = [Colors.red, Colors.green];
+  final List<Color> cores = [Colors.red, Colors.green, Colors.amber];
   final List<double> tamanhos = [70, 65];
 
   void _sendMessageToBroker() {
@@ -125,14 +125,14 @@ class _EstacionamentoState extends State<Estacionamento> {
   }
 
   Widget _buildVagaButton(BuildContext context, int index,
-      {double? left, double? right, double? top, double? bottom}) {
+    {double? left, double? right, double? top, double? bottom}) {
     return Positioned(
       left: left,
       right: right,
       top: top,
       bottom: bottom,
       child: Container(
-        color: reservado[index] ? res : cores[corVaga[index]],
+        color: reservado[index] ? res : cores[corVaga[index] == 2 ? 1 : corVaga[index]],
         width: tamanhos[0],
         height: tamanhos[1],
         child: TextButton(
